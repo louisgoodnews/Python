@@ -1,0 +1,25 @@
+import random
+
+def update_computer_number(computer_number, user_hint):
+    if user_hint.capitalize() == "L":
+        return random.randint(computer_number, computer_number + 10)
+    elif user_hint.capitalize() == "H":
+        return random.randint(computer_number - 10, computer_number)
+
+def guess_numbers(user_number):
+    guess_count = 1
+    computer_number = random.randint(0, 99)
+    user_answer = input(f"Was {computer_number} your number?\nPlease answer with <y/n>")
+    while user_answer.capitalize() == "N":
+        user_hint = input(f"Was {computer_number} higher or lower than your number?\nPlease answer with <h/l>")
+        if user_hint.capitalize() == "H":
+            computer_number = update_computer_number(computer_number, user_hint)
+        elif user_hint.capitalize() == "L":
+            computer_number = update_computer_number(computer_number, user_hint)
+        guess_count = guess_count + 1
+    return f"I guessed your number {user_number} correctly. It took me {guess_count} attempts to do so."
+
+
+user_number = int(input("Please provide a number between 0 and 99: "))
+
+print(guess_numbers(user_number))
