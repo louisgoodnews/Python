@@ -1,0 +1,17 @@
+# binary search uses divide and conquer!
+# we will leverage the fact that our list is SORTED
+def binary_search(list, target):
+    midpoint = (len(list)) // 2  # 2
+    if midpoint == target:
+        print(f"{list[midpoint]} euqals {target}.")
+        return midpoint
+    while list[midpoint] != target:
+        if list[midpoint] < target:
+            print(f"{list[midpoint]} is lesser than {target}.")
+            midpoint = midpoint + 1
+        elif list[midpoint] > target:
+            print(f"{list[midpoint]} is greater than {target}.")
+            midpoint = midpoint - 1
+    print(f"{list[midpoint]} now euqals {target}. I found it at position {midpoint}.")
+
+binary_search([100, 200, 300, 400, 500, 600, 700, 750, 800, 910, 939, 1000], 939)
