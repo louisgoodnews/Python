@@ -1,0 +1,190 @@
+
+# this is a console only version of a tictactoe game
+
+#IMPORT:
+import random
+import re
+
+#FUNCTIONS
+def human_make_move(game_board, user_symbol):
+    # this function will request the user to provide two coordinates
+    # if the coordinates are legal, the is_valid function is called to check if the move would be legal
+    # if the coordinates and the move are legal the move is executed and the game_board is updated
+    human_input = input("Please provide two coordinates for the next move <row,column>\n")
+    while len(human_input) == 0:
+        print("Sorry, but you need to provide two valid coordinates in this format: <row,column>\n")
+        human_input = input("Please provide two coordinates for the next move <row,column>\n")
+    while len(re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")) == 0:
+        human_input = input("Please provide two coordinates for the next move <row,column>\n")
+    while int(re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[0]) > len(game_board) or int(re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[1]) > len(game_board) or int(re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[0]) < 1 or int(re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[1]) < 1:
+        print("Sorry, but it seems that the coordinates you've provided are nowhere to be found. Please try again.")
+        human_input = input("Please provide two coordinates for the next move <row,column>\n")
+    if is_move_valid(game_board, re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[0], re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[1]):
+        game_board[re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[0]][re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[1]] = user_symbol
+        calculate_game_state(game_board, re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[0], re.findall("[0-9]+,+[0-9]", human_input)[0].split(",")[1], user_symbol, "user")
+        #get_move(row_column_match[0], row_column_match[1], "human", user_symbol)
+    else:
+        print("Sorry, but that move was illegal. Please try again.")
+        human_make_move(game_board, user_symbol)
+
+def computer_make_move(game_board, computer_symbol):
+    # this function randomly generates two coordinates for the computer's move
+    # if the coordinates are legal, the is_valid function is called to check if the move would be legal
+    # if the coordinates and the move are legal the move is executed and the game_board is updated
+    computer_move_row = random.randint(1,len(game_board))
+    computer_move_column = random.randint(1,len(game_board))
+    if is_move_valid(game_board, computer_move_row, computer_move_column):
+        game_board[str(computer_move_row)][str(computer_move_column)] = computer_symbol
+        calculate_game_state(game_board, computer_move_row, computer_move_column, computer_symbol, "computer")
+        get_move(computer_move_row, computer_move_column, "computer", computer_symbol)
+    else:
+        computer_make_move(game_board, computer_symbol)
+
+def get_move(row, column, player, player_symbol):
+    # this function is currently only a placeholder but in essence it should provide other functions with the coordinates of the player's most recet moves
+    #is_game_over(game_board, computer_symbol,user_symbol)
+    return dict({"player": player, "row" : row, "column": column, "player_symbol" : player_symbol})
+
+def is_move_valid(game_board, row, column):
+    # this function checks if the game_board's field at a given position (row, column) is empty and therefore eligible for use
+    if game_board.__getitem__(str(row)).__getitem__(str(column)) != " ":
+        return False
+    else:
+        return True
+
+def are_fields_available(length_of_board, game_board):
+    # this function will check every available field of the game_board
+    # if all fields are in use, the function returns false otherwise true
+    for outer in range(1, length_of_board):
+        for inner in range(1, length_of_board):
+            if game_board.__getitem__(str(outer)).__getitem__(str(inner)) == " ":
+                return True
+    return False
+
+def calculate_game_state(game_board, row, column, player_symbol, player):
+    # this function should be an updated version of the is_game_over(game_board, computer_symbol,user_symbol) function below
+    # this function will create a database dictionary as reference to assert if the current occupation of the game_board's fields warrant a winning case for any player
+    database = dict({"horizontal": {}, "vertical": {}, "diagonal_right" : {}, "diagonal_left": {}, "player_symbol": player_symbol, "player_name" :player})
+    outer_keys = game_board.keys()
+    inner_horizontal = list()
+    inner_vertical = list()
+    inner_diagonal_right = list()
+    inner_diagonal_left = list()
+
+    # HORIZONTAL
+    # # generating a list of coordinates for all relevant or even possible wiining cases in the same column for every row of the game board:
+    for outer_key in range(1, len(outer_keys) + 1):
+        inner_horizontal.append({str(outer_key) : str(column)})
+
+    # VERTICAL
+    # generating a list of coordinates for all relevant or even possible wiining cases in the same row for every row of the game board:
+    for inner_row in range(1, len(outer_keys)):
+        inner_vertical.append({str(inner_row) : str(column)})
+
+    # DIAGONAL_RIGHT
+    # getting all relevant fields for a diagonal_right winning case
+    for outer_key in range(1, len(outer_keys) + 1):
+        if int(column) + 1 > len(outer_keys) or int(column) - 1 < 0:
+            if int(outer_key) < int(column):
+                inner_diagonal_right.append({str(outer_key): str(int(column) - 1)})
+            elif int(outer_key) > int(column):
+                inner_diagonal_right.append({str(outer_key): str(int(column) + 1)})
+
+    # DIAGONAL_LEFT
+    # getting all relevant fields for a diagonal_left winning case
+    for outer_key in range(1, len(outer_keys) + 1):
+        inner_diagonal_left.append({str(outer_key): str(outer_key)})
+
+    database.update({"horizontal": inner_horizontal, "vertical": inner_vertical, "diagonal_right" : inner_diagonal_right, "diagonal_left": inner_diagonal_left, "player_symbol": player_symbol, "player_name" :player})
+    is_game_over(game_board, database, number_to_win)
+
+def is_game_over(game_board, database, number_to_win):
+    occurrency_counter = 0
+    for outer in range(0, 4):
+        outer_values = database[str(list(database.keys())[outer])]
+        for inner in range(1, len(outer_values)):
+            row = list(outer_values[inner].keys())[0]
+            column = list(outer_values[inner].values())[0]
+            if game_board[str(row)][str(column)] == database["player_symbol"]:
+               occurrency_counter = int(occurrency_counter + 1)
+            else:
+                occurrency_counter = 0
+    if occurrency_counter == number_to_win:
+        return True
+    else:
+        return False
+
+def determine_winner(winner):
+    # if is_game_over has determined a winning case this function will be executed and print a corresponding message to the console
+    if winner.capitalize() == "Computer":
+        print("The computer won! Better luck next time!")
+    elif winner.capitalize() == "User":
+        print("Congratulations you've won!")
+
+def print_game_board(length_of_board, game_board):
+    # this function builds a string to represent the games' board in the console
+    game_board_string = "__"
+    for i in range(1, length_of_board):
+        if i > 1: game_board_string = f"{game_board_string} | {str(i)}"
+        else: game_board_string = f"{game_board_string}| {str(i)}"
+    game_board_string = f"{game_board_string} |\n"
+    for outer in range(1,length_of_board):
+        game_board_string = f"{game_board_string}|{outer}|"
+        for inner in range(1,length_of_board):
+            game_board_string = f"{game_board_string} {game_board.__getitem__(str(outer)).__getitem__(str(inner))} |"
+        game_board_string = f"{game_board_string}\n"
+    print(game_board_string)
+
+def play_game(length_of_board, game_board, user_symbol, computer_symbol):
+    # this is the main function of this small program
+    # initially the game's board will' be printed to the console and round counter is initialised
+    # while there is no winning case, the human an dcomputer player can make moves with the game board being printed to the console every time
+    print_game_board(length_of_board, game_board)
+    round_count = 1
+    while are_fields_available(length_of_board, game_board) == True:
+        human_make_move(game_board, user_symbol)
+        print_game_board(length_of_board, game_board)
+        if are_fields_available(length_of_board,game_board) == False:
+            print("The game's over! All fields have been occupied!")
+            break
+        computer_make_move(game_board, computer_symbol)
+        print_game_board(length_of_board, game_board)
+        if are_fields_available(length_of_board,game_board) == False:
+            print("The game's over! All fields have been occupied!")
+            break
+        round_count = round_count + 1
+    return f"The game's over!\nWe have a winner after {round_count} rounds!"
+
+#VARIABLES:
+
+# !!! IN THE FUTURE I PLAN TO DYNAMICALLY UPDATE THE GAME'S WINNING GOAL TO REFLECT THE INCREASE IN BOARD SIZE !!!
+number_to_win = int(input("What limit do you prefer for winning? <3 is recommended>\n"))
+
+# length of board edits the board's dimension
+# due to design issues the board's dimension will be limited to a max. of 9
+length_of_board = int(input("What dimension should the game's board be?\n"))
+while length_of_board >= 10 or length_of_board < 3:
+    print("The game board dimension you've specified is illegal. Please opt for a legal dimension instead.")
+    length_of_board = int(input("What dimension should the game's board be?\n"))
+length_of_board = length_of_board + 1
+
+# the game baord is a multi dimensional dictionary
+# the outer keys represent the game board's rows and the inner keys the columns
+# the inner values of the dictionary will later store the player symbols
+# this is in essence the program's database
+game_board = dict()
+for outer in range(1, length_of_board):
+    outer_dictionary = dict()
+    for inner in range(1, length_of_board):
+        outer_dictionary.update({str(inner) : " "})
+    game_board.update({str(outer) : outer_dictionary})
+
+user_symbol = input("Please select your symbol for this match: <O/X>\n").capitalize()
+while user_symbol != "O" and user_symbol.capitalize() != "X":
+    user_symbol = input("Please select your symbol for this match: <O/X>\n").capitalize()
+
+computer_symbol = "O"
+if user_symbol == "O": computer_symbol = "X"
+
+#FUNCTIONCALLS:
+play_game(length_of_board, game_board, user_symbol, computer_symbol)
