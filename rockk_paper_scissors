@@ -1,0 +1,82 @@
+import random
+import turtle
+
+# TURTLE:
+window = turtle.Screen()
+window.setup(2096, 2096)
+
+# DECLARATION:
+result_dictionary_list = [
+    # key is option from player/computer
+    # value is a list of choice objects with choice string for verification and result strings
+    {
+        "player_choice": "stone",
+        "options": [
+            {"computer_choice": "scissors",
+             "result": "You win! Wanna try another round?"},
+            {"computer_choice": "stone",
+             "result": "It's a draw! Better luck next time!"},
+            {"computer_choice": "paper",
+             "result": "You've lost! Better luck next time!"}
+        ]
+    },
+    {
+        "player_choice": "paper",
+        "options": [
+            {"computer_choice": "stone",
+             "result": "You win! Wanna try another round?"},
+            {"computer_choice": "papaer",
+             "result": "It's a draw! Better luck next time!"},
+            {"computer_choice": "scissors",
+             "result": "You've lost! Better luck next time!"}
+        ]
+    },
+    {
+        "player_choice": "scissors",
+        "options": [
+            {"computer_choice": "paper",
+             "result": "You win! Wanna try another round?"},
+            {"computer_choice": "scissors",
+             "result": "It's a draw! Better luck next time!"},
+            {"computer_choice": "stone",
+             "result": "You've lost! Better luck next time!"}
+        ]
+    }
+]
+computer_choice_list = ["stone", "paper", "scissors"]
+computer_choice_selection = computer_choice_list[random.randint(0, 2)]
+player_choice_input = input("Select one from stone, paper, scissors: ").lower()
+
+# LOGGING STUFF:
+print("computer_choice_selection = " + computer_choice_selection)
+
+
+# METHODS:
+def check_input(string):
+    if string == "stone":
+        for result_dictionary_list_item in result_dictionary_list:
+            if result_dictionary_list_item.get("player_choice") == player_choice_input.lower():
+                for options_object in result_dictionary_list_item.get("options"):
+                    if options_object.get("computer_choice") == computer_choice_selection:
+                        print("result_string = " + options_object.get("result"))
+                        break
+    elif string == "paper":
+        for result_dictionary_list_item in result_dictionary_list:
+            if result_dictionary_list_item.get("player_choice") == player_choice_input.lower():
+                for options_object in result_dictionary_list_item.get("options"):
+                    if options_object.get("computer_choice") == computer_choice_selection:
+                        print("result_string = " + options_object.get("result"))
+                        break
+    elif string == "scissors":
+        for result_dictionary_list_item in result_dictionary_list:
+            if result_dictionary_list_item.get("player_choice") == player_choice_input.lower():
+                for options_object in result_dictionary_list_item.get("options"):
+                    if options_object.get("computer_choice") == computer_choice_selection:
+                        print("result_string = " + options_object.get("result"))
+                        break
+    else:
+        print("Please re-enter your input as it does not correspond to any valid player_choice in my result_dictionary_list's list items.")
+
+
+# PRINT:
+print(check_input(player_choice_input))
